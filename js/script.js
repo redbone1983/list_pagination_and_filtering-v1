@@ -5,59 +5,70 @@ FSJS project 2 - List Filter and Pagination
    
 // Study guide for this project - https://drive.google.com/file/d/1OD1diUsTMdpfMDv677TfL1xO2CEkykSz/view?usp=sharing
 
-/*** 
-   Add your global variables that store the DOM elements you will 
-   need to reference and/or manipulate. 
-   
-   But be mindful of which variables should be global and which 
-   should be locally scoped to one of the two main functions you're 
-   going to create. A good general rule of thumb is if the variable 
-   will only be used inside of a function, then it can be locally 
-   scoped to that function.
-***/
 const studentList = document.querySelectorAll('li.student-item');
 
-/*** 
-   Create the `showPage` function to hide all of the items in the 
-   list except for the ten you want to show.
+const showPage = (list, page = 0) => {
+  let firstItem = page * 10;
+  let lastItem = firstItem + 9;
+  list = [...list];
 
-     Pro Tips: 
-     - Keep in mind that with a list of 54 students, the last page 
-       will only display four.
-     - Remember that the first student has an index of 0.
-     - Remember that a function `parameter` goes in the parens when 
-       you initially define the function, and it acts as a variable 
-       or a placeholder to represent the actual function `argument` 
-       that will be passed into the parens later when you call or 
-       "invoke" the function 
-***/
-
-
-const showPage = (list, page) => {
-  
+  for (let item in list) {
+    item = Number(item);
+    if (item >= firstItem && item <= lastItem) {
+      list[item].style.display = "";
+    } else {
+      list[item].style.display = "none";
+    }
+    
+  }
 };
 
-/*** 
-   Create the `appendPageLinks function` to generate, append, and add 
-   functionality to the pagination buttons.
-***/
+// invoke to show default page view
+showPage(studentList);
 
 const appendPageLinks = (list) => {
+  let numOfPages = list.length / 10;
+  numOfPages = Math.round(numOfPages);
+  const pageDiv = document.querySelector('.page');
+  const navDiv = document.createElement('div');
+  const ul = document.createElement('ul');
+  navDiv.className = 'pagination';
+  
+  pageDiv.appendChild(navDiv);
+  navDiv.appendChild(ul);
 
+  
+  let pages;
+
+  for (let i = 1; i <= numOfPages; i += 1) {
+    const listItem = document.createElement('li');
+    pages = document.querySelectorAll('a');
+    pages = [...pages];
+    const anchorLink = document.createElement('a');
+    anchorLink.textContent = i;
+    anchorLink.href = "#";
+
+    
+    listItem.appendChild(anchorLink);
+    ul.appendChild(listItem);
+
+    anchorLink.addEventListener('click', (event) => {
+      const pageNum = Number(event.target.textContent);
+      
+      for (let anchor in pages) {
+        if (pages[anchor].className === 'active') {
+          pages[anchor].className = 'inactive';
+        } 
+      }
+      
+      event.target.className = 'active';
+      if (pageNum === 1) {
+        showPage(list, 0);
+      } else {
+        showPage(list, pageNum);
+      }
+    });
+  }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Remember to delete the comments that came with this file, and replace them with your own code comments.
+appendPageLinks(studentList);
