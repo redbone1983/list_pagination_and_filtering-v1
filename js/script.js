@@ -2,39 +2,36 @@
 Treehouse Techdegree:
 FSJS project 2 - List Filter and Pagination
 ******************************************/
+// Select Main DOM elements
+
+const pageDiv = document.querySelector('.page');
+const studentList = document.querySelectorAll('.student-item');
 const mainUl = document.querySelector('.student-list');
-let studentList = document.querySelectorAll('li.student-item');
 const pageHeader = document.querySelector('.page-header');
+
+// Create Search Elements
 const searchDiv = document.createElement('div');
 const searchInput = document.createElement('input');
 const searchButton = document.createElement('button');
-
-// append search to DOM
-pageHeader.appendChild(searchDiv);
-searchDiv.appendChild(searchInput);
-searchDiv.appendChild(searchButton);
 
 searchDiv.className = 'student-search';
 searchInput.type = 'text';
 searchInput.placeholder = 'Search for students...';
 searchButton.textContent = 'search';
 
-/* Search Button Functionality
-When the searchButton is clicked
-  Take value from searchInput
-Iterate through each studentName in studentList
-  if studentName contains searchInput letter
-    show all studentNames starting with that letter in the DOM
-*/
+// Append Search Elements to the DOM
+pageHeader.appendChild(searchDiv);
+searchDiv.appendChild(searchInput);
+searchDiv.appendChild(searchButton);
 
+// Helper Functions
 const selectAndSpreadArray = (selector) => {
   let arr = document.querySelectorAll(selector);
   arr = [...arr];
   return arr;
 };
 
-
-
+// Main view function
 const showPage = (list, page = 0) => {
   let firstItem = page * 10;
   let lastItem = firstItem + 9;
@@ -51,21 +48,25 @@ for (let item in list) {
 };
 
 // invoke to show default page view
-// showPage(studentList);
+showPage(studentList);
 
-const appendPageLinks = (list) => {
+// Page navigation links
+const appendPageLinks = list => {
+  let pages;
+  // Calculate how many page links to show
   let numOfPages = list.length / 10;
   numOfPages = Math.round(numOfPages);
-  const pageDiv = document.querySelector('.page');
+
+  // Create Page DOM elements
   const navDiv = document.createElement('div');
   const ul = document.createElement('ul');
   navDiv.className = 'pagination';
   
-  let pages;
-
+  // Append Page DOM elements
   pageDiv.appendChild(navDiv);
   navDiv.appendChild(ul);
 
+  // For each page, Create & Append liElement, AnchorElement
   for (let i = 1; i <= numOfPages; i += 1) {
     const listItem = document.createElement('li');
     const anchorLink = document.createElement('a');
@@ -74,17 +75,22 @@ const appendPageLinks = (list) => {
     listItem.appendChild(anchorLink);
     ul.appendChild(listItem);
 
+    // Select page anchor tags to add selected view
     pages = document.querySelectorAll('a');
     pages = [...pages];
 
     anchorLink.addEventListener('click', (event) => {
       const pageNum = Number(event.target.textContent);
       
+      // Deselect all page buttons
       for (let link in pages) {
         pages[link].className = 'inactive';
       }
       
+      // Select page button if clicked
       event.target.className = 'active';
+
+      //Check if on page 1
       if (pageNum === 1) {
         showPage(list, 0);
       } else {
@@ -96,54 +102,77 @@ const appendPageLinks = (list) => {
 
 appendPageLinks(studentList);
 
-// If search input contains a student name, then it will render in the browser view
-const appendSearchResults = (currentList, searchList) => {
+// Calculate Search Results
+const generateSearchResults = (currentList, results) => {
   currentList = [...currentList];
-  searchList = [...searchList];
+  results = [...results];
   for (let i = 0; i < currentList.length; i += 1) {
-    if (searchList.includes(currentList[i])) {
-     currentList[i].style.display = '';
+    if (results.includes(currentList[i])) {
+      currentList[i].style.display = '';
     } else {
       currentList[i].style.display = 'none';
     }
   }
 };
 
-// When a button on the keyboard is released, its letter value is used to search for a match in the student names array
+// Declare an empty string to store user input
 let nameSearch = '';
+
+// No results message/handler
+const noResults = document.createElement('p');
+noResults.textContent = `Profile name is not found in this directory.`;
+noResults.style.display = 'none';
+pageDiv.insertBefore(noResults, mainUl);
+
+// When a button on the keyboard is released
+  // - its letter value is used to search for a match in the student names array
 searchInput.addEventListener('keyup', (event) => {
+  // Declare an empty array to store search results
+  let searchResults = [];
   let studentProfiles = selectAndSpreadArray('.student-item');
-  let searchList = [];   
   let studentNames = selectAndSpreadArray('h3');
 
-  // This dynamically builds up a string value that is assigned to the nameSearch variable
-  nameSearch += event.key;
+  // Add/Subtract user input to nameSearch string
+  if (event.key === 'Backspace') {
+    let lastLetter = nameSearch[nameSearch.length - 1];
+    nameSearch = nameSearch.replace(lastLetter, '');
+  } else {
+    nameSearch += event.key;
+  }
+  
   for (let word in studentNames){
+    // If userInput renders a students name
     if (studentNames[word].textContent.includes(nameSearch)) {
-      searchList.push(studentProfiles[word]);
+      // Add the student profile to search results
+      searchResults.push(studentProfiles[word]);
     }
   }
-  appendSearchResults(studentList, searchList);
+ 
+  if (searchResults.length === 0) {
+    noResults.style.display = "";
+    showPage(studentList);
+  } else {
+    noResults.style.display = "none";
+  }
+
+  // Pass the original studentList and current searchResults list to generate new results view
+  generateSearchResults(studentList, searchResults);
 });
 
+
 // Adds a click eventListener to the search button
-// searchButton.addEventListener('click', (event) => {
-//   let searchList = [];   
-//   let nameSearch = searchInput.value;
-//   let studentProfiles = document.querySelectorAll('.student-item');
-//   studentProfiles = [...studentProfiles];
-//   let studentNames = document.querySelectorAll('h3');
-//   studentNames = [...studentNames];
-//   for (let i = 0; i < studentNames.length; i += 1) {
-//     if (studentNames[i].textContent.includes(nameSearch)) {
-//       searchList.push(studentProfiles[i]);
-//     } 
-//   }
-//   appendSearchResults(searchList);
-// });
-
-
-
-
-
-
+searchButton.addEventListener('click', (event) => {
+  let searchList = [];   
+  let nameSearch = searchInput.value;
+  searchInput.value = '';
+  let studentProfiles = document.querySelectorAll('.student-item');
+  studentProfiles = [...studentProfiles];
+  let studentNames = document.querySelectorAll('h3');
+  studentNames = [...studentNames];
+  for (let i = 0; i < studentNames.length; i += 1) {
+    if (studentNames[i].textContent.includes(nameSearch)) {
+      searchList.push(studentProfiles[i]);
+    } 
+  }
+  generateSearchResults(studentList, searchList);
+});
