@@ -3,6 +3,7 @@ Treehouse Techdegree:
 FSJS project 2 - List Filter and Pagination
 ******************************************/
 // Select Main DOM elements
+let pageNum = 1;
 const pageDiv = document.querySelector('.page');
 const studentList = document.querySelectorAll('.student-item');
 const mainUl = document.querySelector('.student-list');
@@ -31,11 +32,12 @@ const selectAndSpreadArray = (selector) => {
 };
 
 // Show or Hide page of list items based on User's selection of Page number
-const showPage = (list, page = 0) => {
-  let firstItem = page * 10;
-  let lastItem = firstItem + 9;
+const showPage = (list, page) => {
   list = [...list];
 
+  let firstItem = page * 10;
+  let lastItem = firstItem + 9;
+  
 for (let item in list) {
     item = Number(item);
     if (item >= firstItem && item <= lastItem) {
@@ -47,13 +49,20 @@ for (let item in list) {
 };
 
 // invoke to show default page view
-showPage(studentList);
+showPage(studentList, 0);
 
 // Creates and Appends Pagination Links to the DOM
-const appendPageLinks = list => {
+const appendPageLinks = (list, page) => {
   let pages;
-  let numOfPages = Math.ceil(list.length / 10);
+  if (list.length <= 10) {
+    page = 1;
+  } else {
+    page = Math.ceil(list.length / 10);
+  }
  
+  console.log(`current List length = ${list.length}`);
+  console.log(`numOfPages = ${page}`);
+  
   // Create Page DOM elements
   const navDiv = document.createElement('div');
   const ul = document.createElement('ul');
@@ -64,7 +73,7 @@ const appendPageLinks = list => {
   navDiv.appendChild(ul);
 
   // For each page, Create & Append liElement, AnchorElement
-  for (let i = 1; i < numOfPages; i += 1) {
+  for (let i = 0; i < page; i += 1) {
     // Create and Append Page Anchor Link Buttons
     const listItem = document.createElement('li');
     const anchorLink = document.createElement('a');
@@ -72,47 +81,38 @@ const appendPageLinks = list => {
     anchorLink.href = "#";
     listItem.appendChild(anchorLink);
     ul.appendChild(listItem);
-
+  
     // Selects all Page Anchor Link Buttons
     pages = document.querySelectorAll('a');
     pages = [...pages];
-
-    // Highlights Page Anchor Link Button when clicked
+  
+    // Adds click eventListener to each page link
     anchorLink.addEventListener('click', (event) => {
-
-      // Stores the number value of the page button clicked
-      const pageNum = Number(event.target.textContent);
+      let pageClicked = Number(event.target.textContent);
       
-      // Iterates through array of all Page Anchor Links
+      showPage(list, pageClicked);
+      
       for (let link in pages) {
-        // Sets their default className to inactive
         pages[link].className = 'inactive';
       }
       
-      // Highlights Page Anchor Link Button if clicked
+      // Sets clicked page link to active
       event.target.className = 'active';
-
-      //Check if on page 1
-      if (pageNum === 1) {
-        showPage(list, 0);
-      } else {
-        showPage(list, pageNum);
-      }
     });
   }
 };
 
-// invoke to Create and Append Pagination Links
-appendPageLinks(studentList); 
+appendPageLinks(studentList, pageNum);
 
 // Calculate Search Results
 const generateSearchResults = (currentList, results) => {
   if (results.length === 0) {
     showPage(studentList);
     return;
+  } else {
+    currentList = [...currentList];
+    results = [...results];
   }
-  currentList = [...currentList];
-  results = [...results];
   
   for (let i = 0; i < currentList.length; i += 1) {
     if (results.includes(currentList[i])) {
@@ -130,7 +130,7 @@ let nameSearch = '';
 let nameError = '';
 const noResults = document.createElement('p');
 
-  const notFound = (namesArr) => {
+  const notFoundMessage = (namesArr) => {
     pageDiv.insertBefore(noResults, mainUl);
   
     for (let name in namesArr) {
@@ -152,29 +152,29 @@ searchInput.addEventListener('keyup', (event) => {
   let nextToLastIndex = nameSearch.length - 1;
   if (event.key === 'Backspace') {
     nameSearch = nameSearch.slice(0, nextToLastIndex);
-    console.log(nameSearch);
   } else {
     nameSearch += event.key;
   }
   
+  // If a result is found, add it to keyUpSearchResults array
   for (let i = 0; i < studentNames.length; i += 1){
     if (nameSearch !== '' && studentNames[i].textContent.includes(nameSearch)) {
       keyUpSearchResults.push(studentProfiles[i]);
     } else {
+       // If a result is NOT found, add it to nameNotFound array
       nameNotFound.push(nameSearch);
     }
   }
   
-  // Shows No results message if keyUpSearchResults array is empty
+  // Shows No results message if keyUpSearchResults array is empty or text input is emptu
   if (keyUpSearchResults.length === 0 && nameSearch !== ''){
-    notFound(nameNotFound);
+    notFoundMessage(nameNotFound);
     noResults.style.display = "";
   } else {
     noResults.style.display = 'none';
   }
 
-  console.log(keyUpSearchResults.length);
-  
+  // invoke to Create and Append Pagination Links
   generateSearchResults(studentList, keyUpSearchResults);
 });
 
