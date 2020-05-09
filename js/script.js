@@ -4,7 +4,8 @@ FSJS project 2 - List Filter and Pagination
 ******************************************/
 
 // Select Main DOM elements
-let searchResults = [];
+const itemsPerPage = 10;
+// let searchResults = [];
 const pageDiv = document.querySelector('.page');
 const pageHeader = document.querySelector('.page-header');
 const studentUl = document.querySelector('.student-list');
@@ -26,25 +27,14 @@ pageHeader.appendChild(searchDiv);
 searchDiv.appendChild(searchInput);
 searchDiv.appendChild(searchButton);
 
-const studentSearch = (searchInput, names) => {
-  searchResults = [];
-  for (let i = 0; i < names.length; i += 1) {
-    studentLi[i].style.display = 'none';
-    if (names[i].textContent.startsWith(searchInput.value.toLowerCase())) {
-      studentLi[i].style.display = '';
-      searchResults.push(studentLi[i]);
-    }
-  }
-};
-
 const showPage = (list, page) => {
   list = [...list];
-  let firstItem = page * 10;
-  let lastItem = firstItem + 9;
+  let startIndex = (page * itemsPerPage) - itemsPerPage;
+  let endIndex = page * itemsPerPage;
   
 for (let item in list) {
     item = Number(item);
-    if (item >= firstItem && item <= lastItem) {
+    if (item >= startIndex && item < endIndex) {
       list[item].style.display = "";
     } else {
       list[item].style.display = "none";
@@ -62,77 +52,69 @@ const notFoundMessage = (name) => {
   message.style.display = '';
 };
 
-// invoke to show default page view
-showPage(studentLi, 0);
-
-const removePageLinks = (list) => {
-  let pageLinks = document.querySelectorAll('.pagination a');
-  let numOfPageButtonsToShow = Math.ceil(list.length / 10);
-  for (let i = 0; i < pageLinks.length; i += 1) {
-    if (i >= numOfPageButtonsToShow) {
-      pageLinks[i].style.display = 'none';
-    } else {
-      pageLinks[i].style.display = '';
-    }
-  }
-};
-
-let anchorLink;
-const appendPageLinks = (list) => {
-  let pageList;
-  if (list.length < 10) {
-    // set page default page and nav view
-    pageList = 1;
-  } else {
-    pageList = Math.ceil(list.length / 10);
-  }
+const appendPageLinks = list => {
+  let numOfPages = Math.ceil(list.length / 10);
+  
   // Create Page DOM elements
   const navDiv = document.createElement('div');
-  const ul = document.createElement('ul');
+  const navUl = document.createElement('ul');
   navDiv.className = 'pagination';
     
   // Append Page DOM elements
   pageDiv.appendChild(navDiv);
-  navDiv.appendChild(ul);
+  navDiv.appendChild(navUl);
   
-  for (let i = 1; i <= pageList; i += 1) {
+  for (let i = 1; i <= numOfPages; i += 1) {
     const listItem = document.createElement('li');
-    anchorLink = document.createElement('a');
+    let anchorLink = document.createElement('a');
+    if (i === 1) {
+      anchorLink.className = 'active';
+    }
     anchorLink.href = "#";
     anchorLink.textContent = i;
     listItem.appendChild(anchorLink);
-    ul.appendChild(listItem);
+    navUl.appendChild(listItem);
   
-
-    // Adds click eventListener to each page link
     anchorLink.addEventListener('click', (event) => {
-      let pageClicked = Number(event.target.textContent) - 1;
       let pages = document.querySelectorAll('a');
-      pages = [...pages];
       for (let i = 0; i < pages.length; i += 1) {
-        if (pages[i] === event.target) {
-          pages[i].className = 'active';
-        } else {
-          pages[i].className = 'inactive';
-        }
+        pages[i].classList.remove('active');
       }
+      let pageClicked = Number(event.target.textContent);
+      event.target.className = 'active';
       showPage(studentLi, pageClicked);
     });
   }
 };
 
+const removePageLinks = (links) => {
+  links = [...links];
+  for (let i = 0; i < links.length; i += 1) {
+    links[i].style.display = 'none';
+  }
+};
+
+showPage(studentLi, 1);
 appendPageLinks(studentLi);
 
-searchButton.addEventListener('click', (event) => {
+// Add a button that toggles on/off the keyup and click eventListener functionality
+searchInput.addEventListener('keyup', (event) => {
   event.preventDefault();
-  removePageLinks(searchResults);
-  studentSearch(searchInput, studentNames);
-  appendPageLinks(searchResults);
-}); 
+  let pageLinks = document.querySelectorAll('.pagination a');
+  let searchResults = [];
+  let names = [...studentNames];
+  for (let i = 0; i < names.length; i += 1) {
+    if (!names[i].textContent.includes(searchInput.value.toLowerCase())) {
+      studentLi[i].style.display = 'none'
+    } else {
+      searchResults.push(studentLi[i]);
+    }
+  }
 
-searchInput.addEventListener('keyup', () => {
-  studentSearch(searchInput, studentNames);
-  removePageLinks(searchResults);
+  // Refactor and Make into a function that doesnt add duplicate page links
+  showPage(searchResults, 1);
+  removePageLinks(pageLinks);
+  appendPageLinks(searchResults);
 
   if (searchResults.length === 0) {
     notFoundMessage(searchInput.value);
@@ -140,9 +122,43 @@ searchInput.addEventListener('keyup', () => {
   } 
 
   if (searchInput.value.length === 0) {
-      message.style.display = 'none';
-      showPage(studentLi, 0)
-    }
-  });
+    message.style.display = 'none';
+    showPage(studentLi, 1);
+  }
+});
 
+// Older eventListeners for reference
 
+// searchButton.addEventListener('click', (event) => {
+//   event.preventDefault();
+  
+//   studentSearch2(searchInput, studentNames);
+//   removePageLinks(searchResults);
+  
+
+//   if (searchResults.length === 0) {
+//     notFoundMessage(searchInput.value);
+//     removePageLinks(searchResults);
+//   } 
+
+//   if (searchInput.value.length === 0) {
+//      message.style.display = 'none';
+//     showPage(studentLi, 0)
+//   }
+// }); 
+
+// searchInput.addEventListener('keyup', () => {
+//   studentSearch(searchInput, studentNames);
+//   showPage(searchResults, 1);
+//   removePageLinks(searchResults);
+  
+  // if (searchResults.length === 0) {
+  //   notFoundMessage(searchInput.value);
+  //   removePageLinks(searchResults);
+  // } 
+
+  // if (searchInput.value.length === 0) {
+  //     message.style.display = 'none';
+  //     showPage(studentLi, 0)
+  //   }
+//   });
