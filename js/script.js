@@ -5,28 +5,66 @@ FSJS project 2 - List Filter and Pagination
 
 // Select Main DOM elements
 const itemsPerPage = 10;
-// let searchResults = [];
 const pageDiv = document.querySelector('.page');
 const pageHeader = document.querySelector('.page-header');
 const studentUl = document.querySelector('.student-list');
 const studentLi = document.querySelectorAll('.student-item');
 const studentNames = document.querySelectorAll('h3');
 
-// Create Search Elements
+// Add search components
 const searchDiv = document.createElement('div');
 const searchInput = document.createElement('input');
 const searchButton = document.createElement('button');
+const keyupEventButton = document.createElement('button');
+
+// Reset Search components
+const resetButton = document.createElement('button');
 
 searchDiv.className = 'student-search';
 searchInput.type = 'text';
-searchInput.placeholder = 'Search for students...';
-searchButton.textContent = 'search';
+searchInput.placeholder = 'search for students...';
+searchButton.textContent = 'click search';
+keyupEventButton.textContent = 'keyup search';
+resetButton.textContent = 'reset';
 
 // Append Search Elements to the DOM
 pageHeader.appendChild(searchDiv);
-searchDiv.appendChild(searchInput);
 searchDiv.appendChild(searchButton);
+searchDiv.appendChild(keyupEventButton);
 
+// Declare and assigns global default values of eventHandlers to false so search feature can be set by user
+let runClick = false;
+let runKeyup = false;
+
+// * Adds EventListeners to buttons that activates 'exceeds' features *
+
+// Button to search with click feature
+searchButton.addEventListener('click', (event) =>  {
+  runClick = true;
+  searchDiv.appendChild(searchInput);
+  keyupEventButton.style.display = 'none';
+  event.target.textContent = 'search';
+  searchDiv.appendChild(searchButton);
+  searchDiv.appendChild(resetButton);
+});
+ 
+// Button to search with keyup feature
+keyupEventButton.addEventListener('click', () => {
+  runKeyup = true;
+  searchInput.placeholder = 'Enter text to search...';
+  searchDiv.appendChild(searchInput);
+  searchButton.style.display = 'none';
+  keyupEventButton.style.display = 'none';
+  searchDiv.appendChild(resetButton);
+});
+
+// Reloads page
+resetButton.addEventListener('click', () => {
+  location.reload();
+  return false;
+});
+
+// Shows 10 list items per selected page
 const showPage = (list, page) => {
   list = [...list];
   let startIndex = (page * itemsPerPage) - itemsPerPage;
@@ -42,25 +80,28 @@ for (let item in list) {
   }
 };
 
+// Creates and appends element to store 'No Results' message
 let message = document.createElement('p');
 message.style.padding = '10px';
 message.style.display = 'none';
 pageDiv.insertBefore(message, studentUl);
 
+// Handles no results returned
 const notFoundMessage = (name) => {
   message.textContent = `${name} is not found in this directory.`;
   message.style.display = '';
 };
 
+let navDiv;
 const appendPageLinks = list => {
   let numOfPages = Math.ceil(list.length / 10);
   
-  // Create Page DOM elements
-  const navDiv = document.createElement('div');
+  // Create Page Link DOM elements
+  navDiv = document.createElement('div');
   const navUl = document.createElement('ul');
   navDiv.className = 'pagination';
     
-  // Append Page DOM elements
+  // Append Page Link DOM elements
   pageDiv.appendChild(navDiv);
   navDiv.appendChild(navUl);
   
@@ -82,83 +123,62 @@ const appendPageLinks = list => {
       }
       let pageClicked = Number(event.target.textContent);
       event.target.className = 'active';
-      showPage(studentLi, pageClicked);
+      showPage(list, pageClicked);
     });
   }
 };
 
-const removePageLinks = (links) => {
-  links = [...links];
-  for (let i = 0; i < links.length; i += 1) {
-    links[i].style.display = 'none';
-  }
+// Removes page links in order to avoid appending duplicates to the DOM
+const removePageLinks = () => {
+  pageDiv.removeChild(navDiv);
 };
 
+// Shows default page view
 showPage(studentLi, 1);
+
+// Adds default page links
 appendPageLinks(studentLi);
 
-// Add a button that toggles on/off the keyup and click eventListener functionality
-searchInput.addEventListener('keyup', (event) => {
-  event.preventDefault();
-  let pageLinks = document.querySelectorAll('.pagination a');
+// ** Adds functionality to the search component **
+
+// Search eventHandler
+const runSearchEvent = () => {
   let searchResults = [];
   let names = [...studentNames];
   for (let i = 0; i < names.length; i += 1) {
     if (!names[i].textContent.includes(searchInput.value.toLowerCase())) {
-      studentLi[i].style.display = 'none'
+      studentLi[i].style.display = 'none';
     } else {
+    // Paginate search results
       searchResults.push(studentLi[i]);
-    }
+    } 
   }
-
-  // Refactor and Make into a function that doesnt add duplicate page links
+  // Removes default page links
+  removePageLinks();
+  // Updates browser view with searchResults
   showPage(searchResults, 1);
-  removePageLinks(pageLinks);
+  // Updates pageLinks with searchResults
   appendPageLinks(searchResults);
-
+   
+  // Displays 'No Results' message
   if (searchResults.length === 0) {
     notFoundMessage(searchInput.value);
-    removePageLinks(searchResults);
   } 
 
-  if (searchInput.value.length === 0) {
+  // Removes 'No Results' message if searchInput is empty
+  if (searchInput.value.length === 0 || searchResults.length > 0) {
     message.style.display = 'none';
-    showPage(studentLi, 1);
   }
+};
+
+searchInput.addEventListener('keyup', () => {
+  if (runKeyup) {
+    runSearchEvent();
+  } 
 });
 
-// Older eventListeners for reference
-
-// searchButton.addEventListener('click', (event) => {
-//   event.preventDefault();
-  
-//   studentSearch2(searchInput, studentNames);
-//   removePageLinks(searchResults);
-  
-
-//   if (searchResults.length === 0) {
-//     notFoundMessage(searchInput.value);
-//     removePageLinks(searchResults);
-//   } 
-
-//   if (searchInput.value.length === 0) {
-//      message.style.display = 'none';
-//     showPage(studentLi, 0)
-//   }
-// }); 
-
-// searchInput.addEventListener('keyup', () => {
-//   studentSearch(searchInput, studentNames);
-//   showPage(searchResults, 1);
-//   removePageLinks(searchResults);
-  
-  // if (searchResults.length === 0) {
-  //   notFoundMessage(searchInput.value);
-  //   removePageLinks(searchResults);
-  // } 
-
-  // if (searchInput.value.length === 0) {
-  //     message.style.display = 'none';
-  //     showPage(studentLi, 0)
-  //   }
-//   });
+searchButton.addEventListener('click', () => {
+  if (runClick) {
+    runSearchEvent();
+  } 
+}); 
