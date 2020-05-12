@@ -1,10 +1,10 @@
 # list_pagination_and_filtering-v1
 
-This program uses avascript for DOM manipulation.
+This program uses Javascript for DOM manipulation.
 
 ## What does it do?
 
-* Paginates and filters html of a long list of student profiles *
+Paginates and filters html of a long list of student profiles
  
 ## How does it do it?
 
