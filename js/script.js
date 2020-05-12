@@ -16,8 +16,6 @@ const searchDiv = document.createElement('div');
 const searchInput = document.createElement('input');
 const searchButton = document.createElement('button');
 const keyupEventButton = document.createElement('button');
-
-// Reset Search components
 const resetButton = document.createElement('button');
 
 searchDiv.className = 'student-search';
@@ -32,11 +30,11 @@ pageHeader.appendChild(searchDiv);
 searchDiv.appendChild(searchButton);
 searchDiv.appendChild(keyupEventButton);
 
-// Declare and assigns global default values of eventHandlers to false so search feature can be set by user
+// Initializes global boolean to false so search feature can be set by user
 let runClick = false;
 let runKeyup = false;
 
-// * Adds EventListeners to buttons that activates 'exceeds' features *
+// ** Adds EventListener to buttons to activate 'exceeds' features **
 
 // Button to search with click feature
 searchButton.addEventListener('click', (event) =>  {
@@ -71,7 +69,6 @@ const showPage = (list, page) => {
   let endIndex = page * itemsPerPage;
   
 for (let item in list) {
-    item = Number(item);
     if (item >= startIndex && item < endIndex) {
       list[item].style.display = "";
     } else {
@@ -86,13 +83,16 @@ message.style.padding = '10px';
 message.style.display = 'none';
 pageDiv.insertBefore(message, studentUl);
 
+
 // Handles no results returned
 const notFoundMessage = (name) => {
   message.textContent = `${name} is not found in this directory.`;
   message.style.display = '';
 };
 
+// Sets navDiv globally so page links can reset after each search
 let navDiv;
+
 const appendPageLinks = list => {
   let numOfPages = Math.ceil(list.length / 10);
   
@@ -117,11 +117,11 @@ const appendPageLinks = list => {
     navUl.appendChild(listItem);
   
     anchorLink.addEventListener('click', (event) => {
+      let pageClicked = Number(event.target.textContent);
       let pages = document.querySelectorAll('a');
       for (let i = 0; i < pages.length; i += 1) {
         pages[i].classList.remove('active');
       }
-      let pageClicked = Number(event.target.textContent);
       event.target.className = 'active';
       showPage(list, pageClicked);
     });
@@ -141,7 +141,7 @@ appendPageLinks(studentLi);
 
 // ** Adds functionality to the search component **
 
-// Search eventHandler
+// Search Event Handler
 const runSearchEvent = () => {
   let searchResults = [];
   let names = [...studentNames];
@@ -153,10 +153,13 @@ const runSearchEvent = () => {
       searchResults.push(studentLi[i]);
     } 
   }
+
   // Removes default page links
   removePageLinks();
+  
   // Updates browser view with searchResults
   showPage(searchResults, 1);
+  
   // Updates pageLinks with searchResults
   appendPageLinks(searchResults);
    
