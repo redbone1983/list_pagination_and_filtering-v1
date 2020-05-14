@@ -184,6 +184,13 @@ const searchFeatures = () => {
       runSearch(searchInput, studentLi);
     }
   });
+
+  // Runs enter or return button search
+  searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      runSearch(searchInput, studentLi);
+    }
+  });
 };
 
 // Adds search features to page
