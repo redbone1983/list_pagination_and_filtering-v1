@@ -20,7 +20,9 @@ Paginates and filters html of a long list of student profiles
 
     - Adds 3 types of search button features for User to choose from
 
-      1. `Search` - When clicked, User can input a student name into the text field and press a search button to output search results.
+      1. `Search` - When clicked, User can input a student name into the text field and output search results by doing either of the following: 
+        - clicking the 'search' button 
+        - pressing down the 'enter/return' button 
     
       2. `Keyup` - When clicked, User can input a student name into the text field and the input dynamically renders the search results to the DOM in real time.
     
@@ -29,7 +31,7 @@ Paginates and filters html of a long list of student profiles
     - Search Results are then Paginated
     
     **Stretch Goals:**
-    *I would like to refactor this code to keep duplicate student profiles from rendering in the DOM.* 
+    *I would like to refactor this code to keep duplicate student profiles from rendering in the DOM. I hope to implement this feature by storing the search results in a Set Object instead of an Array Object.* 
 
 
 
