@@ -3,7 +3,7 @@ Treehouse Techdegree:
 FSJS project 2 - List Filter and Pagination
 ******************************************/
 
-// Select Main Global Variables
+// Initialize Global Variables
 const studentLi = document.querySelectorAll('.student-item');
 const itemsPerPage = 10;
 
@@ -59,7 +59,7 @@ const appendPageLinks = list => {
   }
 };
 
-// Removes page links in order to avoid appending duplicates to the DOM
+// Removes page links to avoid duplicates
 const removePageLinks = () => {
   document.querySelector('.page').removeChild(document.querySelector('.pagination'));
 };
@@ -79,7 +79,7 @@ const createErrorMsg = list => {
   pageDiv.insertBefore(message, studentUl);
 };
 
-// Creates 'No results' message 
+// Creates 'No results' error message 
 createErrorMsg(studentLi);
 
 const showErrorMsg = (name, message) => {
@@ -95,7 +95,7 @@ const runSearch = (searchInput, list) => {
   const studentNames = document.querySelectorAll('h3');
   const message = document.querySelector('p');
   
-  // Iterates over each name in list
+  // Iterates over each students name in list
   for (let i = 0; i < studentNames.length; i += 1) {
     // If user input value IS NOT present in name
     if (!studentNames[i].textContent.includes(searchInput.value.toLowerCase())) {
@@ -123,15 +123,18 @@ const runSearch = (searchInput, list) => {
   }
 };
 
-const addSearchBar = () => {
+// Creates search features
+const searchFeatures = () => {
   const pageHeader = document.querySelector('.page-header');
   const searchDiv = document.createElement('div');
   const searchInput = document.createElement('input');
+
+  // Creates search input feature
   searchDiv.className = 'student-search';
   searchInput.type = 'text';
   searchInput.placeholder = 'search for students...';
   
-  // add search button set
+  // Creates search button set
   const clickSearchButton = document.createElement('button');
   const keyupEventButton = document.createElement('button');
   const resetButton = document.createElement('button');
@@ -139,7 +142,7 @@ const addSearchBar = () => {
   keyupEventButton.textContent = 'keyup search';
   resetButton.textContent = 'reset';
 
-  // Append Search Elements to the DOM
+  // Appends Search Elements to the DOM
   pageHeader.appendChild(searchDiv);
   searchDiv.appendChild(clickSearchButton);
   searchDiv.appendChild(keyupEventButton);
@@ -183,4 +186,5 @@ const addSearchBar = () => {
   });
 };
 
-addSearchBar();
+// Adds search features to page
+searchFeatures();
